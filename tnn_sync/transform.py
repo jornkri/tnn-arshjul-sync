@@ -1,3 +1,5 @@
+from collections import Counter, defaultdict
+
 from tnn_sync.models import SpondEvent
 from tnn_sync.labels import format_date_label, WEEKDAY_NB
 
@@ -23,20 +25,25 @@ def build_activities(events_by_category: dict[str, list[SpondEvent]]) -> list[di
 def _slot_time(e: SpondEvent) -> str:
     return f"{e.start:%H:%M}–{e.end:%H:%M}"
 
-def build_training_pattern(events: list[SpondEvent], fpn_weekdays: list[int]) -> list[dict]:
-    seen: dict[tuple[int, str], dict] = {}
+def build_training_pattern(events: list[SpondEvent]) -> list[dict]:
+    by_weekday: dict[int, list[SpondEvent]] = defaultdict(list)
     for e in events:
-        weekday = e.start.isoweekday()
-        time = _slot_time(e)
-        key = (weekday, time)
-        if key not in seen:
-            seen[key] = {
-                "weekday": weekday,
-                "time": time,
-                "fpn": weekday in fpn_weekdays,
-                "label": WEEKDAY_NB[weekday],
-            }
-    return sorted(seen.values(), key=lambda s: (s["weekday"], s["time"]))
+        by_weekday[e.start.isoweekday()].append(e)
+    out = []
+    for weekday, evs in by_weekday.items():
+        time = Counter(_slot_time(e) for e in evs).most_common(1)[0][0]
+        fpn = any("fpn" in e.title.lower() for e in evs)
+        out.append({"weekday": weekday, "time": time, "fpn": fpn, "label": WEEKDAY_NB[weekday]})
+    return sorted(out, key=lambda s: s["weekday"])
+
+def categorize(event: SpondEvent, rules: list[tuple[str, str]], fallback: str) -> str:
+    title = event.title.lower()
+    for keyword, category in rules:
+        if keyword in title:
+            return category
+    if event.match_event:
+        return "kamp"
+    return fallback
 
 def build_cancellations(events: list[SpondEvent]) -> list[dict]:
     out = []

@@ -17,6 +17,7 @@ def test_parse_event_converts_utc_to_oslo():
         start=datetime(2026, 7, 2, 15, 50, tzinfo=OSLO),
         end=datetime(2026, 7, 2, 17, 30, tzinfo=OSLO),
         cancelled=False, cancelled_reason=None,
+        series_id=None, match_event=False,
     )
 
 def test_parse_event_missing_end_and_cancelled_defaults():
@@ -26,3 +27,12 @@ def test_parse_event_missing_end_and_cancelled_defaults():
     assert e.end is None
     assert e.cancelled is True
     assert e.cancelled_reason == "Ferie"
+
+def test_parse_event_series_and_match_fields():
+    raw = {
+        "id": "e3", "heading": "TNN16-A", "startTimestamp": "2026-07-07T15:50:00Z",
+        "seriesId": "S1", "matchEvent": True,
+    }
+    e = parse_event(raw)
+    assert e.series_id == "S1"
+    assert e.match_event is True

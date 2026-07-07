@@ -14,5 +14,13 @@ class SpondClient:
         )
         return [parse_event(e) for e in (raw or [])]
 
+    async def events_for_group(self, group_id: str,
+                               min_start: datetime, max_start: datetime) -> list[SpondEvent]:
+        raw = await self._s.get_events(
+            group_id=group_id,
+            min_start=min_start, max_start=max_start, max_events=500,
+        )
+        return [parse_event(e) for e in (raw or [])]
+
     async def close(self) -> None:
         await self._s.clientsession.close()

@@ -2,10 +2,11 @@ from datetime import datetime
 from tnn_sync.models import SpondEvent, OSLO
 from tnn_sync.transform import build_activities
 
-def _ev(id, title, y, mo, d, endday=None):
+def _ev(id, title, y, mo, d, endday=None, match_event=False):
     start = datetime(y, mo, d, 10, 0, tzinfo=OSLO)
     end = datetime(y, mo, endday, 12, 0, tzinfo=OSLO) if endday else None
-    return SpondEvent(id=id, title=title, start=start, end=end, cancelled=False, cancelled_reason=None)
+    return SpondEvent(id=id, title=title, start=start, end=end, cancelled=False, cancelled_reason=None,
+                      series_id=None, match_event=match_event)
 
 def test_build_activities_single_and_range_sorted():
     events = {
@@ -22,19 +23,20 @@ def test_build_activities_single_and_range_sorted():
 
 from tnn_sync.transform import build_training_pattern
 
-def _train(id, y, mo, d, h1, m1, h2, m2, cancelled=False):
-    return SpondEvent(id=id, title="Trening",
+def _train(id, y, mo, d, h1, m1, h2, m2, cancelled=False, title="TNN16-A"):
+    return SpondEvent(id=id, title=title,
                       start=datetime(y, mo, d, h1, m1, tzinfo=OSLO),
                       end=datetime(y, mo, d, h2, m2, tzinfo=OSLO),
-                      cancelled=cancelled, cancelled_reason=None)
+                      cancelled=cancelled, cancelled_reason=None,
+                      series_id="S1", match_event=False)
 
 def test_build_training_pattern_collapses_and_flags_fpn():
     events = [
-        _train("t1", 2026, 7, 7, 15, 50, 17, 30),   # Tue
-        _train("t2", 2026, 7, 14, 15, 50, 17, 30),  # Tue (duplicate slot)
-        _train("t3", 2026, 7, 9, 15, 35, 17, 0),    # Thu
+        _train("t1", 2026, 7, 7, 15, 50, 17, 30, title="TNN16-A"),   # Tue
+        _train("t2", 2026, 7, 14, 15, 50, 17, 30, title="TNN16-A"),  # Tue (duplicate slot)
+        _train("t3", 2026, 7, 9, 15, 35, 17, 0, title="TNN16-A FPN"),    # Thu
     ]
-    result = build_training_pattern(events, fpn_weekdays=[4])
+    result = build_training_pattern(events)
     assert result == [
         {"weekday": 2, "time": "15:50–17:30", "fpn": False, "label": "Tirsdag"},
         {"weekday": 4, "time": "15:35–17:00", "fpn": True, "label": "Torsdag"},
@@ -49,7 +51,8 @@ def test_build_cancellations_only_cancelled_sorted():
         SpondEvent(id="t4", title="Trening",
                    start=datetime(2026, 7, 2, 15, 50, tzinfo=OSLO),
                    end=datetime(2026, 7, 2, 17, 30, tzinfo=OSLO),
-                   cancelled=True, cancelled_reason="Ferie"),      # earlier Thu cancelled
+                   cancelled=True, cancelled_reason="Ferie",
+                   series_id="S1", match_event=False),      # earlier Thu cancelled
     ]
     assert build_cancellations(events) == [
         {"date": "2026-07-02", "weekday": 4, "reason": "Ferie"},
@@ -103,3 +106,33 @@ def test_is_publishable():
                                [{"weekday": 2, "time": "15:50–17:30", "fpn": False, "label": "Tirsdag"}],
                                [], "2026-07-07T12:15:00Z")
     assert is_publishable(only_training) is True
+
+from tnn_sync.transform import categorize
+
+RULES = [("cup", "cup"), ("turnering", "cup"), ("sosial", "sosialt"), ("camp", "leir"),
+         ("leir", "leir"), ("møte", "dugnad"), ("dugnad", "dugnad"), ("loppe", "dugnad"),
+         ("isfa", "kamp")]
+
+def test_categorize_cup_keyword():
+    e = _ev("a", "Stjerne Cup 2026", 2026, 8, 1)
+    assert categorize(e, RULES, fallback="sosialt") == "cup"
+
+def test_categorize_sosialt_keyword():
+    e = _ev("b", "Sosial happening hos Eddie", 2026, 8, 1)
+    assert categorize(e, RULES, fallback="sosialt") == "sosialt"
+
+def test_categorize_leir_keyword_from_camp():
+    e = _ev("c", "BEKREFTET matchcamp i Drammen...", 2026, 8, 1)
+    assert categorize(e, RULES, fallback="sosialt") == "leir"
+
+def test_categorize_dugnad_keyword_from_mote():
+    e = _ev("d", "Foreldremøte TNN16-A", 2026, 8, 1)
+    assert categorize(e, RULES, fallback="sosialt") == "dugnad"
+
+def test_categorize_match_event_no_keyword_is_kamp():
+    e = _ev("e", "Random title", 2026, 8, 1, match_event=True)
+    assert categorize(e, RULES, fallback="sosialt") == "kamp"
+
+def test_categorize_unknown_title_falls_back():
+    e = _ev("f", "Something completely unrelated", 2026, 8, 1)
+    assert categorize(e, RULES, fallback="sosialt") == "sosialt"

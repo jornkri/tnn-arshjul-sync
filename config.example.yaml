@@ -1,5 +1,5 @@
 # Copy to config.yaml and fill in real Spond ids (run scripts/dump_groups.py to discover them).
-group_id: "REPLACE_WITH_GROUP_ID"
+group_id: "62F0C154B34C43E4B6DF5CA69C46C5FE"   # TNN 2016
 season:
   year: 2026
   label: "TNN 2016-A"
@@ -12,11 +12,18 @@ categories:
   leir:    {label: "Treningsleir",    color: "#34D9A0", icon: "leir"}
   dugnad:  {label: "Dugnad",          color: "#B98BFF", icon: "dugnad"}
   kamp:    {label: "Kamp / serie",    color: "#FF8A3D", icon: "kamp"}
-# Map each activity subgroup id to a category key above.
-activity_subgroups:
-  REPLACE_WITH_SUBGROUP_ID: cup
-# The subgroup id whose events are the fixed weekly trainings.
-training_subgroup_id: "REPLACE_WITH_TRAINING_SUBGROUP_ID"
-# ISO weekdays (1=Mon..7=Sun) whose training is an FPN session.
-fpn_weekdays: [4]
+# One-off events categorized by first matching keyword in the title; else fallback.
+category_rules:
+  - ["cup", "cup"]
+  - ["turnering", "cup"]
+  - ["sosial", "sosialt"]
+  - ["camp", "leir"]
+  - ["leir", "leir"]
+  - ["møte", "dugnad"]
+  - ["dugnad", "dugnad"]
+  - ["loppe", "dugnad"]
+  - ["isfa", "kamp"]
+fallback_category: "sosialt"
+# One-off events whose (lowercased, stripped) title exactly matches these are dropped (stray trainings).
+ignore_activity_titles: ["tnn16-a", "tnn 16-a"]
 output_path: "public/arshjul.json"

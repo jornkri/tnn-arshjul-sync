@@ -7,9 +7,9 @@ class Config:
     group_id: str
     season: dict
     categories: dict
-    activity_subgroups: dict   # {subgroup_id: category_key}
-    training_subgroup_id: str
-    fpn_weekdays: list[int]
+    category_rules: list[list[str]]   # [[keyword, category], ...]
+    fallback_category: str
+    ignore_activity_titles: list[str]
     output_path: str
 
 def load_config(path: str | Path) -> Config:
@@ -18,8 +18,8 @@ def load_config(path: str | Path) -> Config:
         group_id=data["group_id"],
         season=data["season"],
         categories=data["categories"],
-        activity_subgroups=data["activity_subgroups"],
-        training_subgroup_id=data["training_subgroup_id"],
-        fpn_weekdays=data.get("fpn_weekdays", []),
+        category_rules=data.get("category_rules", []),
+        fallback_category=data["fallback_category"],
+        ignore_activity_titles=data.get("ignore_activity_titles", []),
         output_path=data.get("output_path", "public/arshjul.json"),
     )

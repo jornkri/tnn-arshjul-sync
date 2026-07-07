@@ -5,11 +5,13 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+from collections import defaultdict
+
 from tnn_sync.config import Config, load_config
 from tnn_sync.spond_client import SpondClient
 from tnn_sync.transform import (
     build_activities, build_training_pattern, build_cancellations,
-    build_plan, is_publishable,
+    build_plan, is_publishable, categorize,
 )
 from tnn_sync.validate import validate_plan
 
@@ -31,13 +33,10 @@ def write_plan_guarded(plan: dict, out_path: Path) -> None:
     print(f"Wrote {out_path}")
 
 async def _collect(client: SpondClient, cfg: Config, min_start: datetime, max_start: datetime):
-    events_by_category: dict[str, list] = {}
-    for subgroup_id, category in cfg.activity_subgroups.items():
-        evs = await client.events_for_subgroup(cfg.group_id, subgroup_id, min_start, max_start)
-        events_by_category.setdefault(category, []).extend(evs)
-    training = await client.events_for_subgroup(
-        cfg.group_id, cfg.training_subgroup_id, min_start, max_start)
-    return events_by_category, training
+    events = await client.events_for_group(cfg.group_id, min_start, max_start)
+    recurring = [e for e in events if e.series_id]
+    oneoff = [e for e in events if not e.series_id]
+    return recurring, oneoff
 
 async def _run_async(cfg: Config) -> dict:
     username = os.environ["SPOND_USERNAME"]
@@ -47,16 +46,23 @@ async def _run_async(cfg: Config) -> dict:
     max_start = datetime(year + 1, 1, 1)
     client = SpondClient(username, password)
     try:
-        events_by_category, training = await _collect(client, cfg, min_start, max_start)
+        recurring, oneoff = await _collect(client, cfg, min_start, max_start)
     finally:
         await client.close()
+    by_cat: dict[str, list] = defaultdict(list)
+    rules = [tuple(r) for r in cfg.category_rules]
+    ignore = set(cfg.ignore_activity_titles)
+    for e in oneoff:
+        if e.title.strip().lower() in ignore:
+            continue
+        by_cat[categorize(e, rules, cfg.fallback_category)].append(e)
     generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     return build_plan(
         season=cfg.season,
         categories=cfg.categories,
-        activities=build_activities(events_by_category),
-        training_pattern=build_training_pattern(training, cfg.fpn_weekdays),
-        cancellations=build_cancellations(training),
+        activities=build_activities(dict(by_cat)),
+        training_pattern=build_training_pattern(recurring),
+        cancellations=build_cancellations(recurring),
         generated_at=generated_at,
     )
 
