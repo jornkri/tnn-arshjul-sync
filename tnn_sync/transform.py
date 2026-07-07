@@ -37,3 +37,15 @@ def build_training_pattern(events: list[SpondEvent], fpn_weekdays: list[int]) ->
                 "label": WEEKDAY_NB[weekday],
             }
     return sorted(seen.values(), key=lambda s: (s["weekday"], s["time"]))
+
+def build_cancellations(events: list[SpondEvent]) -> list[dict]:
+    out = []
+    for e in events:
+        if not e.cancelled:
+            continue
+        item = {"date": e.start.date().isoformat(), "weekday": e.start.isoweekday()}
+        if e.cancelled_reason:
+            item["reason"] = e.cancelled_reason
+        out.append(item)
+    out.sort(key=lambda c: c["date"])
+    return out

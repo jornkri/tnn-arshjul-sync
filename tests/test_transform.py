@@ -39,3 +39,19 @@ def test_build_training_pattern_collapses_and_flags_fpn():
         {"weekday": 2, "time": "15:50–17:30", "fpn": False, "label": "Tirsdag"},
         {"weekday": 4, "time": "15:35–17:00", "fpn": True, "label": "Torsdag"},
     ]
+
+from tnn_sync.transform import build_cancellations
+
+def test_build_cancellations_only_cancelled_sorted():
+    events = [
+        _train("t1", 2026, 7, 7, 15, 50, 17, 30),                 # not cancelled
+        _train("t3", 2026, 7, 9, 15, 35, 17, 0, cancelled=True),  # Thu cancelled
+        SpondEvent(id="t4", title="Trening",
+                   start=datetime(2026, 7, 2, 15, 50, tzinfo=OSLO),
+                   end=datetime(2026, 7, 2, 17, 30, tzinfo=OSLO),
+                   cancelled=True, cancelled_reason="Ferie"),      # earlier Thu cancelled
+    ]
+    assert build_cancellations(events) == [
+        {"date": "2026-07-02", "weekday": 4, "reason": "Ferie"},
+        {"date": "2026-07-09", "weekday": 4},
+    ]
