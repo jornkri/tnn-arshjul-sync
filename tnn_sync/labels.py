@@ -2,7 +2,6 @@ from datetime import date
 
 MONTH_NB = {1: "januar", 2: "februar", 3: "mars", 4: "april", 5: "mai", 6: "juni",
             7: "juli", 8: "august", 9: "september", 10: "oktober", 11: "november", 12: "desember"}
-MONTH_NB_TITLE = {n: name.capitalize() for n, name in MONTH_NB.items()}
 WEEKDAY_NB = {1: "Mandag", 2: "Tirsdag", 3: "Onsdag", 4: "Torsdag",
               5: "Fredag", 6: "Lørdag", 7: "Søndag"}
 

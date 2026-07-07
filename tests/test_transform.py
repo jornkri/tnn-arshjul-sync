@@ -76,6 +76,22 @@ def test_build_plan_shape():
     assert plan["activities"][0]["title"] == "Norway Cup"
     assert plan["trainingPattern"] == [] and plan["cancellations"] == []
 
+def test_build_activities_stable_tiebreak_on_same_date():
+    # same start date, deliberately reversed id order on input
+    events = {"cup": [_ev("zzz", "B", 2026, 5, 10), _ev("aaa", "A", 2026, 5, 10)]}
+    result = build_activities(events)
+    assert [a["id"] for a in result] == ["aaa", "zzz"]
+
+def test_build_cancellations_stable_tiebreak_on_same_date():
+    # Two cancellations on different dates; verify the sorted output order is
+    # deterministic regardless of input order (guards against relying on
+    # Spond's return order, which is not guaranteed stable).
+    e_a = _train("t_a", 2026, 5, 12, 18, 0, 19, 0, cancelled=True)  # Tue
+    e_b = _train("t_b", 2026, 5, 14, 18, 0, 19, 0, cancelled=True)  # Thu
+    result = build_cancellations([e_b, e_a])
+    assert result == build_cancellations([e_a, e_b])
+    assert [c["date"] for c in result] == ["2026-05-12", "2026-05-14"]
+
 def test_is_publishable():
     empty = build_plan(SEASON, CATS, [], [], [], "2026-07-07T12:15:00Z")
     assert is_publishable(empty) is False

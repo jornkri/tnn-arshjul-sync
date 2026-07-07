@@ -17,7 +17,7 @@ def build_activities(events_by_category: dict[str, list[SpondEvent]]) -> list[di
             if end_d and end_d != start_d:
                 item["end"] = end_d.isoformat()
             out.append(item)
-    out.sort(key=lambda a: a["start"])
+    out.sort(key=lambda a: (a["start"], a["id"]))
     return out
 
 def _slot_time(e: SpondEvent) -> str:
@@ -47,7 +47,7 @@ def build_cancellations(events: list[SpondEvent]) -> list[dict]:
         if e.cancelled_reason:
             item["reason"] = e.cancelled_reason
         out.append(item)
-    out.sort(key=lambda c: c["date"])
+    out.sort(key=lambda c: (c["date"], c["weekday"]))
     return out
 
 def build_plan(season: dict, categories: dict, activities: list[dict],

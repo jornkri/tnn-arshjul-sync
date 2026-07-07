@@ -44,7 +44,7 @@ async def _run_async(cfg: Config) -> dict:
     password = os.environ["SPOND_PASSWORD"]
     year = cfg.season["year"]
     min_start = datetime(year, 1, 1)
-    max_start = datetime(year, 12, 31, 23, 59)
+    max_start = datetime(year + 1, 1, 1)
     client = SpondClient(username, password)
     try:
         events_by_category, training = await _collect(client, cfg, min_start, max_start)
