@@ -19,3 +19,21 @@ def build_activities(events_by_category: dict[str, list[SpondEvent]]) -> list[di
             out.append(item)
     out.sort(key=lambda a: a["start"])
     return out
+
+def _slot_time(e: SpondEvent) -> str:
+    return f"{e.start:%H:%M}–{e.end:%H:%M}"
+
+def build_training_pattern(events: list[SpondEvent], fpn_weekdays: list[int]) -> list[dict]:
+    seen: dict[tuple[int, str], dict] = {}
+    for e in events:
+        weekday = e.start.isoweekday()
+        time = _slot_time(e)
+        key = (weekday, time)
+        if key not in seen:
+            seen[key] = {
+                "weekday": weekday,
+                "time": time,
+                "fpn": weekday in fpn_weekdays,
+                "label": WEEKDAY_NB[weekday],
+            }
+    return sorted(seen.values(), key=lambda s: (s["weekday"], s["time"]))
