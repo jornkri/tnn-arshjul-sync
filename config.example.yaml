@@ -1,0 +1,22 @@
+# Copy to config.yaml and fill in real Spond ids (run scripts/dump_groups.py to discover them).
+group_id: "REPLACE_WITH_GROUP_ID"
+season:
+  year: 2026
+  label: "TNN 2016-A"
+  accent: "#E8112D"
+# The 6 categories rendered by the app (color/icon/label live here).
+categories:
+  cup:     {label: "Cup / turnering", color: "#FF4D4D", icon: "cup"}
+  trening: {label: "Trening",         color: "#3DA0FF", icon: "trening"}
+  sosialt: {label: "Sosialt",         color: "#FFC53D", icon: "sosialt"}
+  leir:    {label: "Treningsleir",    color: "#34D9A0", icon: "leir"}
+  dugnad:  {label: "Dugnad",          color: "#B98BFF", icon: "dugnad"}
+  kamp:    {label: "Kamp / serie",    color: "#FF8A3D", icon: "kamp"}
+# Map each activity subgroup id to a category key above.
+activity_subgroups:
+  REPLACE_WITH_SUBGROUP_ID: cup
+# The subgroup id whose events are the fixed weekly trainings.
+training_subgroup_id: "REPLACE_WITH_TRAINING_SUBGROUP_ID"
+# ISO weekdays (1=Mon..7=Sun) whose training is an FPN session.
+fpn_weekdays: [4]
+output_path: "public/arshjul.json"
