@@ -55,3 +55,35 @@ def test_build_cancellations_only_cancelled_sorted():
         {"date": "2026-07-02", "weekday": 4, "reason": "Ferie"},
         {"date": "2026-07-09", "weekday": 4},
     ]
+
+from tnn_sync.transform import build_plan, is_publishable
+
+SEASON = {"year": 2026, "label": "TNN 2016-A", "accent": "#E8112D"}
+CATS = {"cup": {"label": "Cup / turnering", "color": "#FF4D4D", "icon": "cup"}}
+
+def test_build_plan_shape():
+    activities = [_ev("b", "Norway Cup", 2026, 7, 27)]
+    plan = build_plan(
+        season=SEASON, categories=CATS,
+        activities=build_activities({"cup": activities}),
+        training_pattern=[], cancellations=[],
+        generated_at="2026-07-07T12:15:00Z",
+    )
+    assert plan["schemaVersion"] == 1
+    assert plan["generatedAt"] == "2026-07-07T12:15:00Z"
+    assert plan["season"] == SEASON
+    assert plan["categories"] == CATS
+    assert plan["activities"][0]["title"] == "Norway Cup"
+    assert plan["trainingPattern"] == [] and plan["cancellations"] == []
+
+def test_is_publishable():
+    empty = build_plan(SEASON, CATS, [], [], [], "2026-07-07T12:15:00Z")
+    assert is_publishable(empty) is False
+    with_acts = build_plan(SEASON, CATS,
+                           build_activities({"cup": [_ev("b", "Cup", 2026, 7, 27)]}),
+                           [], [], "2026-07-07T12:15:00Z")
+    assert is_publishable(with_acts) is True
+    only_training = build_plan(SEASON, CATS, [],
+                               [{"weekday": 2, "time": "15:50–17:30", "fpn": False, "label": "Tirsdag"}],
+                               [], "2026-07-07T12:15:00Z")
+    assert is_publishable(only_training) is True

@@ -49,3 +49,19 @@ def build_cancellations(events: list[SpondEvent]) -> list[dict]:
         out.append(item)
     out.sort(key=lambda c: c["date"])
     return out
+
+def build_plan(season: dict, categories: dict, activities: list[dict],
+               training_pattern: list[dict], cancellations: list[dict],
+               generated_at: str) -> dict:
+    return {
+        "schemaVersion": 1,
+        "generatedAt": generated_at,
+        "season": season,
+        "categories": categories,
+        "activities": activities,
+        "trainingPattern": training_pattern,
+        "cancellations": cancellations,
+    }
+
+def is_publishable(plan: dict) -> bool:
+    return bool(plan.get("activities") or plan.get("trainingPattern"))
