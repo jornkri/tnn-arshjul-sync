@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["schemaVersion", "generatedAt", "season", "categories", "activities", "trainingPattern", "cancellations"],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "generatedAt": {"type": "string"},
+    "season": {
+      "type": "object",
+      "required": ["year", "label", "accent"],
+      "properties": {
+        "year": {"type": "integer"},
+        "label": {"type": "string"},
+        "accent": {"type": "string", "pattern": "^#[0-9A-Fa-f]{6}$"}
+      }
+    },
+    "categories": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["label", "color", "icon"],
+        "properties": {
+          "label": {"type": "string"},
+          "color": {"type": "string", "pattern": "^#[0-9A-Fa-f]{6}$"},
+          "icon": {"type": "string"}
+        }
+      }
+    },
+    "activities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "category", "start", "dateLabel"],
+        "properties": {
+          "id": {"type": "string"},
+          "title": {"type": "string"},
+          "category": {"type": "string"},
+          "start": {"type": "string", "format": "date"},
+          "end": {"type": "string", "format": "date"},
+          "dateLabel": {"type": "string"}
+        }
+      }
+    },
+    "trainingPattern": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["weekday", "time", "fpn", "label"],
+        "properties": {
+          "weekday": {"type": "integer", "minimum": 1, "maximum": 7},
+          "time": {"type": "string"},
+          "fpn": {"type": "boolean"},
+          "label": {"type": "string"}
+        }
+      }
+    },
+    "cancellations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["date", "weekday"],
+        "properties": {
+          "date": {"type": "string", "format": "date"},
+          "weekday": {"type": "integer", "minimum": 1, "maximum": 7},
+          "reason": {"type": "string"}
+        }
+      }
+    }
+  }
+}
