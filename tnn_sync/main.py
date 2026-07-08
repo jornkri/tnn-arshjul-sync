@@ -10,7 +10,7 @@ from collections import defaultdict
 from tnn_sync.config import Config, load_config
 from tnn_sync.spond_client import SpondClient
 from tnn_sync.transform import (
-    build_activities, build_training_pattern, build_cancellations,
+    build_activities, build_training_pattern, build_trainings, build_cancellations,
     build_plan, is_publishable, categorize,
 )
 from tnn_sync.validate import validate_plan
@@ -62,6 +62,7 @@ async def _run_async(cfg: Config) -> dict:
         categories=cfg.categories,
         activities=build_activities(dict(by_cat)),
         training_pattern=build_training_pattern(recurring),
+        trainings=build_trainings(recurring),
         cancellations=build_cancellations(recurring),
         generated_at=generated_at,
     )

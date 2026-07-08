@@ -8,7 +8,7 @@ VALID = {
     "categories": {"cup": {"label": "Cup", "color": "#FF4D4D", "icon": "cup"}},
     "activities": [{"id": "b", "title": "Norway Cup", "category": "cup",
                     "start": "2026-07-27", "dateLabel": "27. juli"}],
-    "trainingPattern": [], "cancellations": [],
+    "trainingPattern": [], "trainings": [], "cancellations": [],
 }
 
 def test_writes_valid_plan(tmp_path):
