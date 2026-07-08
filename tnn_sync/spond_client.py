@@ -11,6 +11,7 @@ class SpondClient:
         raw = await self._s.get_events(
             group_id=group_id, subgroup_id=subgroup_id,
             min_start=min_start, max_start=max_start, max_events=500,
+            include_scheduled=True,
         )
         return [parse_event(e) for e in (raw or [])]
 
@@ -19,6 +20,7 @@ class SpondClient:
         raw = await self._s.get_events(
             group_id=group_id,
             min_start=min_start, max_start=max_start, max_events=500,
+            include_scheduled=True,
         )
         return [parse_event(e) for e in (raw or [])]
 

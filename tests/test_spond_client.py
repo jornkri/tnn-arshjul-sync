@@ -15,6 +15,7 @@ async def test_events_for_subgroup_maps_and_passes_params():
         inst.get_events.assert_awaited_once()
         kwargs = inst.get_events.await_args.kwargs
         assert kwargs["group_id"] == "G1" and kwargs["subgroup_id"] == "S1"
+        assert kwargs["include_scheduled"] is True  # placeholder trainings (invites not sent)
         assert len(events) == 1 and events[0].id == "e1" and events[0].title == "Trening"
 
 async def test_events_for_subgroup_handles_none():
@@ -33,6 +34,7 @@ async def test_events_for_group_maps_and_passes_params_without_subgroup():
         inst.get_events.assert_awaited_once()
         kwargs = inst.get_events.await_args.kwargs
         assert kwargs["group_id"] == "G1"
+        assert kwargs["include_scheduled"] is True  # placeholder trainings (invites not sent)
         assert "subgroup_id" not in kwargs
         assert len(events) == 1 and events[0].id == "e1" and events[0].title == "Trening"
 

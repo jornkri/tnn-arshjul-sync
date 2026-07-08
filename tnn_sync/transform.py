@@ -36,6 +36,24 @@ def build_training_pattern(events: list[SpondEvent]) -> list[dict]:
         out.append({"weekday": weekday, "time": time, "fpn": fpn, "label": WEEKDAY_NB[weekday]})
     return sorted(out, key=lambda s: s["weekday"])
 
+def build_trainings(events: list[SpondEvent]) -> list[dict]:
+    """Per-date training sessions (the actual recurring-event occurrences,
+    including scheduled placeholders). One entry per session, flagged cancelled."""
+    out = []
+    for e in events:
+        item = {
+            "date": e.start.date().isoformat(),
+            "weekday": e.start.isoweekday(),
+            "time": _slot_time(e),
+            "fpn": "fpn" in e.title.lower(),
+            "cancelled": e.cancelled,
+        }
+        if e.cancelled and e.cancelled_reason:
+            item["reason"] = e.cancelled_reason
+        out.append(item)
+    out.sort(key=lambda t: (t["date"], t["weekday"]))
+    return out
+
 def categorize(event: SpondEvent, rules: list[tuple[str, str]], fallback: str) -> str:
     title = event.title.lower()
     for keyword, category in rules:
@@ -59,7 +77,7 @@ def build_cancellations(events: list[SpondEvent]) -> list[dict]:
 
 def build_plan(season: dict, categories: dict, activities: list[dict],
                training_pattern: list[dict], cancellations: list[dict],
-               generated_at: str) -> dict:
+               generated_at: str, trainings: list[dict] | None = None) -> dict:
     return {
         "schemaVersion": 1,
         "generatedAt": generated_at,
@@ -67,6 +85,7 @@ def build_plan(season: dict, categories: dict, activities: list[dict],
         "categories": categories,
         "activities": activities,
         "trainingPattern": training_pattern,
+        "trainings": trainings or [],
         "cancellations": cancellations,
     }
 

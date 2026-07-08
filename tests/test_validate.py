@@ -9,6 +9,8 @@ VALID = {
     "activities": [{"id": "b", "title": "Norway Cup", "category": "cup",
                     "start": "2026-07-27", "dateLabel": "27. juli"}],
     "trainingPattern": [{"weekday": 2, "time": "15:50–17:30", "fpn": False, "label": "Tirsdag"}],
+    "trainings": [{"date": "2026-07-07", "weekday": 2, "time": "15:50–17:30",
+                   "fpn": False, "cancelled": False}],
     "cancellations": [{"date": "2026-07-09", "weekday": 4}],
 }
 

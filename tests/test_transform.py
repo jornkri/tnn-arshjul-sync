@@ -59,6 +59,34 @@ def test_build_cancellations_only_cancelled_sorted():
         {"date": "2026-07-09", "weekday": 4},
     ]
 
+from tnn_sync.transform import build_trainings
+
+def test_build_trainings_per_date_sorted_with_flags():
+    events = [
+        _train("t2", 2026, 7, 9, 15, 35, 17, 0, title="TNN16-A FPN"),   # Thu, fpn
+        _train("t1", 2026, 7, 7, 16, 0, 17, 30, title="TNN16-A"),       # Tue, earlier
+        SpondEvent(id="t3", title="Trening",
+                   start=datetime(2026, 7, 4, 13, 30, tzinfo=OSLO),
+                   end=datetime(2026, 7, 4, 14, 30, tzinfo=OSLO),
+                   cancelled=True, cancelled_reason="Ferie",
+                   series_id="S1", match_event=False),                  # Sat, cancelled
+    ]
+    result = build_trainings(events)
+    assert result == [
+        {"date": "2026-07-04", "weekday": 6, "time": "13:30–14:30", "fpn": False,
+         "cancelled": True, "reason": "Ferie"},
+        {"date": "2026-07-07", "weekday": 2, "time": "16:00–17:30", "fpn": False,
+         "cancelled": False},
+        {"date": "2026-07-09", "weekday": 4, "time": "15:35–17:00", "fpn": True,
+         "cancelled": False},
+    ]
+
+def test_build_trainings_cancelled_without_reason_omits_reason_key():
+    events = [_train("t1", 2026, 7, 9, 15, 35, 17, 0, cancelled=True)]
+    result = build_trainings(events)
+    assert result == [{"date": "2026-07-09", "weekday": 4, "time": "15:35–17:00",
+                       "fpn": False, "cancelled": True}]
+
 from tnn_sync.transform import build_plan, is_publishable
 
 SEASON = {"year": 2026, "label": "TNN 2016-A", "accent": "#E8112D"}
