@@ -30,6 +30,8 @@ jobs:
           SPOND_USERNAME: ${{ secrets.SPOND_USERNAME }}
           SPOND_PASSWORD: ${{ secrets.SPOND_PASSWORD }}
         run: python -m tnn_sync.main
+      - name: Publish static pages (privacy policy etc.)
+        run: cp assets/privacy.html public/privacy.html
       - uses: actions/upload-pages-artifact@v3
         with:
           path: public

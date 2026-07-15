@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Personvernerklæring — Kickoff</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+         max-width: 720px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #1a1a1a; }
+  h1 { font-size: 1.6em; }
+  h2 { font-size: 1.15em; margin-top: 2em; }
+  footer { margin-top: 3em; color: #666; font-size: 0.9em; }
+</style>
+</head>
+<body>
+<h1>Personvernerklæring — Kickoff</h1>
+<p><em>Sist oppdatert: 15. juli 2026</em></p>
+
+<p>Kickoff er en app for lag i barne- og ungdomsfotball: et årshjul over
+sesongen, en treningsdagbok og en ledertavle laget kan bruke seg imellom.
+Denne erklæringen beskriver hva appen lagrer og deler, og hvorfor.</p>
+
+<h2>Hvem er ansvarlig</h2>
+<p>Kickoff utvikles og driftes av Jørn Kristiansen. Spørsmål om personvern
+kan sendes til <a href="mailto:jorn.kristiansen@geodata.no">jorn.kristiansen@geodata.no</a>.</p>
+
+<h2>Hva lagres, og hvor</h2>
+<ul>
+  <li><strong>Spillerprofil</strong> (navn, draktnummer, posisjon, sterkeste
+    fot, fødselsår, og et valgfritt bilde av spilleren) lagres kun lokalt
+    på enheten. Vi har ikke tilgang til dette, og det sendes ikke til noen
+    server med mindre du selv velger å dele det (se «Ledertavle» under).</li>
+  <li><strong>Treningsdagbok</strong> (loggede økter, XP, nivå, badges) lagres
+    kun lokalt på enheten.</li>
+  <li><strong>Spond-tilkobling</strong>: om du kobler til din egen
+    Spond-gruppe, logger du inn direkte mot Spond sine servere
+    (<code>api.spond.com</code>) — vi ser aldri passordet ditt. Kun en
+    tilgangsnøkkel (token) lagres, i enhetens sikre nøkkelring (Keychain),
+    for å hente gruppens kalender/hendelser til appen. Se
+    <a href="https://spond.com/privacy" target="_blank" rel="noopener">Spond sin egen personvernerklæring</a>
+    for hvordan de behandler data.</li>
+  <li><strong>Ledertavle</strong>: navn, nivå og XP kan deles med andre
+    spillere/foresatte koblet til samme lag, via Apple sin CloudKit-tjeneste.
+    Dette er synlig <em>kun</em> for andre som er koblet til samme
+    Spond-gruppe som deg — ikke offentlig, ikke søkbart. Apple er
+    databehandler for denne delen; se
+    <a href="https://www.apple.com/legal/privacy/" target="_blank" rel="noopener">Apples personvernerklæring</a>.</li>
+  <li><strong>Posisjon (Løkka-kartet)</strong>: brukes kun mens appen er
+    åpen, for å vise avstand til fotballbaner/pickup-events i nærheten.
+    Posisjonen lagres ikke og sendes ikke til noen server.</li>
+</ul>
+
+<p>Appen bruker ingen tredjeparts annonse- eller analyseverktøy, og selger
+ikke data til noen.</p>
+
+<h2>Barn</h2>
+<p>Kickoff er laget for at foresatte/trenere registrerer og administrerer
+informasjon på vegne av unge spillere — appen er ikke rettet direkte mot
+barn, og forutsetter at en voksen står for oppsett og bruk.</p>
+
+<h2>Sletting</h2>
+<p>Under «Slett bruker» i appens profilinnstillinger fjernes alt lokalt
+lagret data umiddelbart, inkludert spillerprofil, bilde og treningsdagbok.
+Egne bidrag til den delte ledertavlen fjernes fra CloudKit ved samme
+handling. Du kan også kontakte oss for å be om at data slettes.</p>
+
+<h2>Endringer</h2>
+<p>Vi kan oppdatere denne erklæringen etter hvert som appen utvikles.
+Dato for siste endring står øverst på siden.</p>
+
+<footer>Kickoff — <a href="mailto:jorn.kristiansen@geodata.no">jorn.kristiansen@geodata.no</a></footer>
+</body>
+</html>
